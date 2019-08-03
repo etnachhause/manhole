@@ -1,0 +1,23 @@
+{
+  "name": "manhole",
+  "short_name": "manhole",
+  "description": "my first manhole PWA",
+  "start_url": "index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "lang": "de-de",
+
+  "icons": [
+  {
+      "src": "bilder/manhole_57.png",
+      "sizes": "128x128",
+      "type": "image/png"
+   },
+   {
+         "src": "bilder/manhole_57.png",
+         "sizes": "57x57",
+         "type": "image/png"
+   }
+   ]
+   
+}

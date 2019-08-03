@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Manhole</title>
+
+		<!-- iOS WebApp Metatags -->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1 , maximum-scale=1, user-scalable=0">
+		<meta name="apple-mobile-web-app-capable" content="yes" >
+		<meta name="format-detection" content="telephone=no">
+
+		<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+		<!-- Homescreen Icons für iOS und Android -->
+
+		<link rel="apple-touch-icon-precomposed" href="bilder/manhole_57.png" sizes="57x57" />
+
+		<script src="javascript/jquery.min.js" type="text/javascript"></script>
+
+		<!-- CSS Stylesheet -->
+		<link rel="manifest" href="manifest.json">
+		<link href="styles/reset.css" rel="stylesheet" type="text/css">
+		<link href="styles/styles.css" rel="stylesheet" type="text/css">
+
+	</head>
+
+	<BODY onload=init();prepare();>
+	<div class="landscape">
+	<div class="screen">
+	<div id="game_object" style="position:relative">
+
+
+		<canvas id="background_canvas" width="568px" height="320px" style=" position:absolute; top:0px; left:0px; " >
+		</canvas>
+		<canvas id="main_canvas" width="568px" height="320px" style="position:absolute; top:0px; left:0px; " >
+		</canvas>
+		<canvas id="player_canvas" width="568px" height="320px"  style="position:absolute; top:0px; left:0px; " >
+		</canvas>
+
+		<button  id="upLeft" style="border:0px solid black; background-color: transparent; position:absolute;  height:50px; width:50px; top:195px; left:80px;"></button>
+		<button  id="upRight" style="border:0px solid black; background-color: transparent;position:absolute;  height:50px; width:50px; top:195px; left:450px;" ></button>
+		<button  id="downLeft" style="border:0px solid black; background-color: transparent;position:absolute; height:50px; width:50px; top:250px; left:80px;" ></button>
+		<button  id="downRight"style="border:0px solid black; background-color: transparent;position:absolute; height:50px; width:50px; top:250px; left:450px;" ></button>
+
+		<button  id="gameA"style="border:0px solid black; background-color: transparent;position:absolute; height:20px; width:50px; top:280px; left:275px;" ></button>
+		<button  id="gameB"style="border:0px solid black; background-color: transparent;position:absolute; height:20px; width:50px; top:280px; left:325px;" ></button>
+		<button  id="tone"style="border:0px solid black; background-color: transparent;position:absolute; height:20px; width:50px; top:280px; left:375px;" ></button>
+
+	</div>
+	</div>
+	</div>
+	<div class="impressum">Andy´s Manhole<br> origin Copyright &copy; 1981<br> by Nintendo <br>
+		this <br>July 2015 at MHH <br> please turn device...</div>
+
+
+	<script>
+				var isPlaying=false;
+				var missing=0;
+				var speedA=500;
+				var speedB=350;
+				var speedAPlus=350;
+				var speedBPlus=250;
+				var speed=speedA;
+				var points=0;
+				var touchen='touchstart';
+				var desktop=true;
+				var firstMove;
+				var px=0;
+				var py=0;
+				var position=1;
+			 	var datas=new Array(
+			 	0,0,0,0,0,0,0,0,0,0,
+			 	1,0,0,0,0,0,0,0,0,0,
+			 	0,0,0,0,0,0,0,0,0,0,
+			 	1,0,0,0,0,0,0,0,0,0,
+			 	0,0,0,0,0,0,0,0,0,0,
+			 	1,0,0,0,0,0,0,0,0,1,
+			 	0,1,0,0,0,0,0,0,0,0,
+			 	0,0,0,0,0,1,0,0,0,0,
+			 	0,0,0,0,0,0,0,0,0,0,
+			 	0,0,0,0,1,0,0,0,0,0,
+			 	0,0,0,0,0,0,0,0,0,1,
+			 	0,0,0,1,0,0,0,0,0,0,
+			 	1,0,0,0,0,1,0,0,0,0,
+			 	0,0,0,0,0,1,0,0,0,0,
+			 	0,0,1,0,0,0,0,1,0,0,
+			 	0,0,0,0,0,0,0,0,1,1,
+			 	0,0,0,0,0,0,0,0,1,0,
+			 	0,1,0,0,0,0,0,0,0,0,
+			 	1,0,0,0,0,0,0,0,0,1,
+			 	0,1,0,0,0,0,0,0,0,0);
+				var currCounter=0;
+				var datasLower=new Array(
+				0,0,0,0,0,0,0,0,0,0,
+				1,0,0,0,0,0,0,0,0,0,
+				0,0,0,0,0,0,0,0,0,0,
+				1,0,0,0,0,0,0,0,0,0,
+				0,0,0,0,0,0,0,0,0,0,
+				0,0,0,0,0,0,0,0,0,0,
+				0,0,0,1,0,0,0,0,0,0,
+				1,0,0,0,0,0,0,0,1,0,
+				0,0,0,0,0,0,0,1,0,0,
+				0,0,0,0,0,1,0,0,0,0,
+				0,0,0,0,0,0,0,1,0,1,
+				1,0,0,0,0,0,0,0,0,0,
+				0,0,0,0,0,0,0,0,1,0,
+				0,0,0,1,0,1,0,0,0,0,
+				0,0,0,0,0,0,0,1,0,0,
+				0,0,0,0,0,1,0,0,0,0,
+				0,0,0,0,0,0,0,1,0,1,
+				1,0,0,0,0,0,0,0,0,0,
+				0,0,0,0,0,0,0,0,1,0,
+				0,0,0,1,0,1,0,0,0,0);
+				var currLowerCounter=0;
+				var sound=true;
+
+				var isMobile = navigator.userAgent.match(/iphone|ipad|ipod/i) &&
+						parseInt(navigator.appVersion.match(/OS (\d)/)[1], 10) >= 7;
+
+				if ('serviceWorker' in navigator) {
+							  navigator.serviceWorker.register('service-worker.js').then(function(registration) {
+							    alert( 'ServiceWorker wurde registriert:', registration.scope);
+							   }
+							  ).catch(function(err) {
+							    alert( 'ServiceWorker wurde leider nicht registriert.', err);
+
+							 });
+				}
+
+				if (isMobile) {
+						desktop=false;
+				}
+
+				if(desktop){
+						touchen='click';
+				}
+				var button1 = document.getElementById('upLeft');
+				button1.addEventListener(touchen, upLeftPressed, true);
+
+				var button2 = document.getElementById('upRight');
+				button2.addEventListener(touchen, upRightPressed, true);
+
+				var button3 = document.getElementById('downLeft');
+				button3.addEventListener(touchen, downLeftPressed, true);
+
+				var button4 = document.getElementById('downRight');
+				button4.addEventListener(touchen, downRightPressed, true);
+
+				var buttonA = document.getElementById('gameA');
+				buttonA.addEventListener(touchen, aPressed, true);
+
+				var buttonB = document.getElementById('gameB');
+				buttonB.addEventListener(touchen, bPressed, true);
+
+				var buttonTone = document.getElementById('tone');
+				buttonTone.addEventListener(touchen, tonePressed, true);
+
+				function init(){
+					background_canvas=document.getElementById('background_canvas');
+					background_ctx=background_canvas.getContext('2d');
+
+					main_canvas=document.getElementById('main_canvas');
+					main_ctx=main_canvas.getContext('2d');
+
+					player_canvas=document.getElementById('player_canvas');
+					player_ctx=player_canvas.getContext('2d');
+
+					requestAFrame=(function(){
+							return window.requestAnimationFrame ||
+							window.webkitRequestAnimationFrame  ||
+							window.mozRequestAnimationFrame		||
+							window.oRequestAnimationFrame		||
+							window.msRequestAnimationFrame		||
+							function (callback){
+								window.setTimeout(callback, 1000/60)
+							};
+					})();
+ 					document.ontouchmove = function(e) {e.preventDefault()};
+				}
+
+				window.addEventListener('orientationchange', function ()
+					{
+						if (window.innerHeight > window.innerWidth)
+						{
+							document.getElementsByTagName('BODY').style.transform = "rotate(90deg)";
+						}
+				});
+
+				window.addEventListener(touchen, function (e) {
+				      firstMove = true;
+				});
+
+				window.addEventListener('touchmove', function (e) {
+				      if (firstMove) {
+				          e.preventDefault();
+				          firstMove = false;
+
+				      }
+				});
+
+				function loadMedia(){
+					background_sprite=new Image();
+					background_sprite.src='bilder/backgroundImage.png';
+					bridge_sprite=new Image();
+					bridge_sprite.src='bilder/allImage.png';
+					tick_audio=new Audio();
+					tick_audio.src='audio/tick.wav';
+					tick_audio.type='audio/x-wav';
+					tack_audio=new Audio();
+					tack_audio.src='audio/tack.wav';
+					tack_audio.type='audio/x-wav';
+					points_audio=new Audio();
+					points_audio.src='audio/tuck.wav';
+					points_audio.type='audio/x-wav';
+					missed_audio=new Audio();
+					missed_audio.src='audio/troet.wav';
+					missed_audio.type='audio/x-wav';
+				}
+
+				function clear_player_canvas(){
+				 	player_ctx.clearRect(0,0,568,320);
+				}
+				function clear_main_upper_canvas(){
+				 	main_ctx.clearRect(0,0,568,160);
+				}
+				function clear_main_lower_canvas(){
+				 	main_ctx.clearRect(0,160,568,320);
+				}
+
+				function loop(){
+					var drawX=174;
+					var drawY=124;
+					clear_player_canvas();
+					background_ctx.drawImage(background_sprite,0,0);
+					background_ctx.drawImage(bridge_sprite,16,444,241,105,drawX, drawY, 230, 105);
+
+					drawMissingRunner();
+					drawPoints();
+					if(points>40 && speed==speedA){
+						speed=speedAPlus;
+					}else if(points>40 && speed==speedB){
+						speed=speedBPlus;
+					}
+					if(speed==speedA || speed==speedAPlus){
+						drawGameA();
+					}else if (speed==speedB || speed==speedBPlus){
+						drawGameB();
+					}
+					if(isPlaying){
+						if(position==1){
+							drawUpLeft();
+						}else if(position==2){
+							drawUpRight();
+						}else if(position==3){
+							drawDownLeft();
+						}else if(position==4){
+							drawDownRight();
+						}
+						requestAFrame(loop);
+					}
+				}
+
+				function prepare(){
+					loadMedia();
+					window.setTimeout(prepareStart, 500);
+
+				}
+
+				function prepareStart(){
+					var drawX=174;
+					var drawY=124;
+					background_ctx.drawImage(background_sprite,0,0);
+					background_ctx.drawImage(bridge_sprite,16,444,241,105,drawX, drawY, 230, 105);
+				}
+
+
+				function startLoop(){
+
+					isPlaying=true;
+					var drawX=174;
+					var drawY=124;
+					background_ctx.drawImage(background_sprite,0,0);
+					background_ctx.drawImage(bridge_sprite,16,444,241,105,drawX, drawY, 230, 105);
+					loop();
+				}
+
+				function stopLoop(){
+					isPlaying=false;
+				}
+				function upLeftPressed(){
+					position=1;
+				}
+				function upRightPressed(){
+					position=2;
+				}
+
+				function downLeftPressed(){
+					position=3;
+				}
+
+				function downRightPressed(){
+					position=4;
+				}
+
+				function aPressed(){
+					if(!isPlaying){
+						speed=speedA;
+						startUp();
+					}
+				}
+
+				function bPressed(){
+					if(!isPlaying){
+						speed=speedB;
+						startUp();
+					}
+				}
+
+				function startUp(){
+					missing=0;
+					points=0;
+					position=1;
+					currCounter=0;
+					currLowerCounter=0;
+					startLoop();
+					startUpperLoop();
+					startLowerLoop();
+				}
+
+				function tonePressed(){
+					sound=!sound;
+				}
+
+				function startUpperLoop(){
+					upperLoop();
+				}
+
+
+
+				function upperLoop(){
+					if(isPlaying){
+						clear_main_upper_canvas();
+					}
+					if(isPlaying && currCounter<(datas.length-10)){
+						var show=new Array(0,0,0,0,0,0,0,0,0,0);
+						for(j=0;j<datas.length;j++){
+							show[j]=datas[(currCounter+j)];
+						}
+						if(sound){
+							tick_audio.play();
+						}
+						showUpRunner(show);
+						currCounter++;
+						window.setTimeout(waitLoop, speed);
+					}
+				}
+				function waitLoop(){
+					window.setTimeout(upperLoop, speed);
+				}
+
+				function showUpRunner(show){
+					var miss=false;
+					var add=false;
+					for(i=0;i<show.length;i++){
+						if(show[i]==0){
+							continue;
+						}else if(show[4]==1 && position==2){
+							add=true;
+							getXForPos(i);
+						}else if(show[4]==1 && position!=2){
+							miss=true;
+							drawFallenUpRight();
+						}else if(show[7]==1 && position==1){
+							add=true;
+							getXForPos(i);
+						}else if(show[7]==1 && position!=1){
+							miss=true;
+							drawFallenUpLeft();
+						}else{
+							getXForPos(i);
+						}
+					}
+					if(miss){
+						missing++;
+						if(sound){
+							missed_audio.play();
+						}
+					}
+					if(add){
+						points++;
+						if(sound){
+							points_audio.play();
+						}
+					}
+				}
+
+
+				function getXForPos(pos){
+					var plus=160;
+					if(pos==10){
+						drawRunnerUpSlash(13+plus);
+					}else if(pos==9){
+						drawRunnerUpBackSlash(40+plus);
+					}else if(pos==8){
+						drawRunnerUpSlash(61+plus);
+					}else if(pos==7){
+						drawRunnerUpBackSlashGrins(87+plus);
+					}else if(pos==6){
+						drawRunnerUpSlash(108+plus);
+					}else if(pos==5){
+						drawRunnerUpBackSlash(134+plus);
+					}else if(pos==4){
+						drawRunnerUpSlashGrins(157+plus);
+					}else if(pos==3){
+						drawRunnerUpBackSlash(181+plus);
+					}else if(pos==2){
+						drawRunnerUpSlash(202+plus);
+					}else if(pos==1){
+						drawRunnerUpBackSlash(230+plus);
+					}
+				}
+
+				function startLowerLoop(){
+					waitLowerLoop();
+				}
+
+
+
+				function lowerLoop(){
+					if(isPlaying){
+						clear_main_lower_canvas();
+					}
+					if(isPlaying && currLowerCounter<(datasLower.length-10)){
+						var showLower=new Array(0,0,0,0,0,0,0,0,0,0);
+						for(j=0;j<datasLower.length;j++){
+							showLower[j]=datasLower[(currLowerCounter+j)];
+						}
+						if(sound){
+							tack_audio.play();
+						}
+						showLowerRunner(showLower);
+						currLowerCounter++;
+						window.setTimeout(waitLowerLoop, speed);
+					}else{
+						showWin();
+					}
+				}
+
+				function showWin(){
+					stopLoop();
+					window.setTimeout(printWin, 500);
+					alert("You Win !!!");
+				}
+
+				function waitLowerLoop(){
+					window.setTimeout(lowerLoop, speed);
+				}
+
+				function showLowerRunner(showLower){
+					var miss=false;
+					var add=false;
+					for(i=0;i<showLower.length;i++){
+						if(showLower[i]==0){
+							continue;
+						}else if(showLower[4]==1 && position==3){
+							add=true;
+							getXForLowerPos(i);
+						}else if(showLower[4]==1 && position!=3){
+							drawFallenDownLeft();
+							miss=true;
+						}else if(showLower[7]==1 && position==4){
+							add=true;
+							getXForLowerPos(i);
+						}else if(showLower[7]==1 && position!=4){
+							drawFallenDownRight();
+							miss=true;
+						}else{
+							getXForLowerPos(i);
+						}
+					}
+					if(miss){
+						missing++;
+						if(sound){
+							missed_audio.play();
+						}
+					}
+					if(add){
+						points++;
+						if(sound){
+							points_audio.play();
+						}
+					}
+				}
+
+				function drawMissingRunner(){
+					if(missing==0){
+					}else if(missing==1){
+						drawMiss();
+						drawMissing(310+30);
+					}else if(missing==2){
+						drawMiss();
+						drawMissing(310+30);
+						drawMissing(310+50);
+					}else if(missing==3){
+						drawMiss();
+						drawMissing(310+30);
+						drawMissing(310+50);
+						drawMissing(310+70);
+						gameOver();
+					}
+				}
+
+				function drawPoints(){
+					main_ctx.font = "20px san-serif";
+					main_ctx.fillText(points+"", 280, 85);
+				}
+
+				function gameOver(){
+					stopLoop();
+					window.setTimeout(printOver, 500);
+
+				}
+
+				function printOver(){
+					var oldhi=localStorage.getItem('hi');
+					if(oldhi==null || points>oldhi){
+						localStorage.setItem('hi',points);
+						alert("Game Over - HighScore: "+points);
+					}else{
+						alert("Game Over");
+					}
+				}
+
+				function getXForLowerPos(pos){
+					var plus=160;
+					if(pos==1){
+						drawRunnerLowSlash(13+plus);
+					}else if(pos==2){
+						drawRunnerLowBackSlash(40+plus);
+					}else if(pos==3){
+						drawRunnerLowSlash(61+plus);
+					}else if(pos==4){
+						drawRunnerLowBackSlashGrins(87+plus);
+					}else if(pos==5){
+						drawRunnerLowSlash(108+plus);
+					}else if(pos==6){
+						drawRunnerLowBackSlash(134+plus);
+					}else if(pos==7){
+						drawRunnerLowSlashGrins(157+plus);
+					}else if(pos==8){
+						drawRunnerLowBackSlash(179+plus);
+					}else if(pos==9){
+						drawRunnerLowSlash(199+plus);
+					}else if(pos==10){
+						drawRunnerLowBackSlash(225+plus);
+					}
+				}
+
+				function drawUpLeft(){
+					var startX=73;
+					var startY=113;
+					var width=48;
+					var height=31;
+					var drawX=243;
+					var drawY=123;
+					background_ctx.drawImage(bridge_sprite,startX, startY ,width, height ,drawX, drawY, width, height);
+				}
+				function drawUpRight(){
+					var startX=135;
+					var startY=113;
+					var width=48;
+					var height=31;
+					var drawX=288;
+					var drawY=125;
+					background_ctx.drawImage(bridge_sprite,startX, startY ,width, height ,drawX, drawY, width, height);
+				}
+				function drawDownLeft(){
+					var startX=193;
+					var startY=113;
+					var width=48;
+					var height=31;
+					var drawX=244;
+					var drawY=190;
+					background_ctx.drawImage(bridge_sprite,startX, startY ,width, height ,drawX, drawY, width, height);
+				}
+				function drawDownRight(){
+					var startX=23;
+					var startY=113;
+					var width=48;
+					var height=31;
+					var drawX=294;
+					var drawY=188;
+					background_ctx.drawImage(bridge_sprite,startX, startY ,width, height ,drawX, drawY, width, height);
+				}
+				function drawFallenUpLeft(){
+					var startX=23;
+					var startY=222;
+					var width=28;
+					var height=25;
+					var drawX=245;
+					var drawY=140;
+					main_ctx.drawImage(bridge_sprite,startX, startY ,width, height ,drawX, drawY, width, height);
+				}
+				function drawFallenUpRight(){
+					var startX=23;
+					var startY=246;
+					var width=28;
+					var height=27;
+					var drawX=320;
+					var drawY=133;
+
+					main_ctx.drawImage(bridge_sprite,startX, startY ,width, height ,drawX, drawY, width, height);
+				}
+				function drawFallenDownLeft(){
+					var startX=23;
+					var startY=184;
+					var width=28;
+					var height=27;
+					var drawX=231;
+					var drawY=203;
+					main_ctx.drawImage(bridge_sprite,startX, startY ,width, height ,drawX, drawY, width, height-2);
+				}
+				function drawFallenDownRight(){
+					var startX=23;
+					var startY=154;
+					var width=28;
+					var height=27;
+					var drawX=310;
+					var drawY=208;
+					main_ctx.drawImage(bridge_sprite,startX, startY ,width, height ,drawX, drawY, width, height);
+				}
+				function drawRunnerUpSlash(drawX){
+					var startX=13;
+					var startY=36;
+					var width=25;
+					var height=27;
+					var drawY=98;
+					main_ctx.drawImage(bridge_sprite,startX, startY ,width, height ,drawX, drawY, width, height);
+				}
+				function drawRunnerUpBackSlash(drawX){
+					var startX=40;
+					var startY=36;
+					var width=20;
+					var height=27;
+					var drawY=98;
+					main_ctx.drawImage(bridge_sprite,startX, startY ,width, height ,drawX, drawY, width, height);
+				}
+				function drawRunnerUpSlashGrins(drawX){
+					var startX=87;
+					var startY=36;
+					var width=20;
+					var height=27;
+					var drawY=98;
+					main_ctx.drawImage(bridge_sprite,startX, startY ,width, height ,drawX, drawY, width, height);
+				}
+				function drawRunnerUpBackSlashGrins(drawX){
+					var startX=156;
+					var startY=36;
+					var width=24;
+					var height=27;
+					var drawY=98;
+					main_ctx.drawImage(bridge_sprite,startX, startY ,width, height ,drawX, drawY, width, height);
+				}
+				function drawRunnerLowSlash(drawX){
+					var startX=13;
+					var startY=73;
+					var width=21;
+					var height=27;
+					var drawY=163;
+					main_ctx.drawImage(bridge_sprite,startX, startY ,width, height ,drawX, drawY, width, height);
+				}
+				function drawRunnerLowBackSlash(drawX){
+					var startX=37;
+					var startY=73;
+					var width=23;
+					var height=27;
+					var drawY=163;
+					main_ctx.drawImage(bridge_sprite,startX, startY ,width, height ,drawX, drawY, width, height);
+				}
+				function drawRunnerLowSlashGrins(drawX){
+					var startX=84;
+					var startY=73;
+					var width=20;
+					var height=27;
+					var drawY=163;
+					main_ctx.drawImage(bridge_sprite,startX, startY ,width, height ,drawX, drawY, width, height);
+				}
+				function drawRunnerLowBackSlashGrins(drawX){
+					var startX=157;
+					var startY=73;
+					var width=20;
+					var height=27;
+					var drawY=163;
+					main_ctx.drawImage(bridge_sprite,startX, startY ,width, height ,drawX, drawY, width, height);
+				}
+				function drawMissing(drawX){
+					var startX=86;
+					var startY=8;
+					var width=18;
+					var height=12;
+					var drawY=68;
+					main_ctx.drawImage(bridge_sprite,startX, startY ,width, height ,drawX, drawY, width, height);
+				}
+				function drawMiss(){
+					var startX=58;
+					var startY=8;
+					var width=27;
+					var height=12;
+					var drawX=310;
+					var drawY=68;
+					main_ctx.drawImage(bridge_sprite,startX, startY ,width, height ,drawX, drawY, width, height);
+				}
+				function drawGameA(){
+					var startX=20;
+					var startY=4;
+					var width=30;
+					var height=8;
+					var drawX=200;
+					var drawY=68;
+					main_ctx.drawImage(bridge_sprite,startX, startY ,width, height ,drawX, drawY, width, height);
+				}
+				function drawGameB(){
+					var startX=20;
+					var startY=14;
+					var width=30;
+					var height=8;
+					var drawX=200;
+					var drawY=83;
+					main_ctx.drawImage(bridge_sprite,startX, startY ,width, height ,drawX, drawY, width, height);
+				}
+
+		</script>
+
+
+
+
+
+	</body>
+</html>
+

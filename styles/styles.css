@@ -1,0 +1,51 @@
+@charset "UTF-8";
+
+
+@media screen and (orientation: landscape) {
+
+.impressum{
+    margin-top:2200px;
+}
+
+.screen{
+	margin-top:0px;	
+	width:320px;
+	height:200px;
+	position:relative;
+}
+}
+@media screen and (orientation: portrait ) {
+
+body  {   	
+    background-color:yellow; 
+    background-image: url(../bilder/manhole_57.png);
+    background-position: 190px 325px; 
+    background-repeat: no-repeat; 
+   
+}
+
+.impressum{
+	margin-top:50px;
+	position:absolute;
+	left:0;
+	right:0;
+	top:10px;
+	color:black;
+	text-align:center;
+	font:  24px/60px helvetica;
+	
+}
+.screen{
+	margin-top:-2200px;		
+}
+
+}
+
+
+
+
+}
+
+
+
+
